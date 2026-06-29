@@ -8,14 +8,38 @@ import math
 
 st.set_page_config(page_title="Plotting Jadwal Bikom", page_icon="📅", layout="wide")
 
-st.title("📅 Aplikasi Plotting Jadwal Bimbingan Komunal (Bikom)")
-st.markdown("Aplikasi ini dibuat berdasarkan PANDUAN PLOTTING JADWAL BIKOM untuk memudahkan proses penjadwalan secara otomatis.")
+st.title("📅 Sistem Penjadwalan Bimbingan Komunal PKM ITS")
+st.markdown("Penjadwalan otomatis berbasis ketersediaan dosen dan bidang PKM.")
+
+with st.expander("📖 Panduan Format File Excel"):
+    tab1, tab2 = st.tabs(["File Tim", "File Dosen"])
+    with tab1:
+        st.markdown("""
+        **Kolom Wajib:**
+        - `NRP`
+        - `Nama Ketua`
+        - `Bidang PKM`
+        
+        *Catatan:* Lakukan data cleaning terlebih dahulu. Pastikan tidak ada data ganda (duplicate) pada daftar tim.
+        """)
+    with tab2:
+        st.markdown("""
+        **Kolom Wajib:**
+        - `Nama Lengkap` (Nama dan gelar)
+        - `Bidang PKM`
+        - `Lokasi` (Opsional)
+        - `Kolom Hari` (Misal: Jam Kesediaan pada Senin, 26 Januari 2026)
+        
+        *Format Jam:* `HH.MM - HH.MM` (Contoh: `09.00 - 13.00`). Pisahkan dengan koma jika ada beberapa sesi (Contoh: `09.00 - 13.00, 14.00 - 17.00`).
+        Jika dosen tidak bersedia, isi dengan `Tidak Bersedia` atau biarkan kosong.
+        """)
 
 # === SIDEBAR UNTUK PENGATURAN ===
 st.sidebar.header("⚙️ Pengaturan Parameter")
 DURASI_PER_TIM = st.sidebar.number_input("Durasi Per Tim (Menit)", min_value=1, value=20, step=5)
 MAKS_TIM_PER_DOSEN_PER_SESI = st.sidebar.number_input("Maksimal Tim / Dosen / Sesi", min_value=1, value=12, step=1)
 MAX_TABLE_PER_ROW = st.sidebar.number_input("Jumlah Tabel Per Baris (Excel)", min_value=1, value=6, step=1)
+RANDOM_SEED = st.sidebar.number_input("Random Seed", value=42, step=1, help="Ubah angka ini untuk mengacak ulang urutan tim (jika dirasa jadwal belum optimal).")
 OUTPUT_FILE_NAME = st.sidebar.text_input("Nama File Output", value="jadwal_bikom_final.xlsx")
 
 if not OUTPUT_FILE_NAME.endswith(".xlsx"):
@@ -174,7 +198,10 @@ if file_tim and file_dosen:
                     hasil = []
                     jumlah_tim_dosen = {}
                     
-                    for _, tim in df_tim.iterrows():
+                    # Acak urutan tim berdasarkan random seed agar hasil bisa bervariasi jika di-generate ulang
+                    df_tim_shuffled = df_tim.sample(frac=1, random_state=int(RANDOM_SEED)).reset_index(drop=True)
+                    
+                    for _, tim in df_tim_shuffled.iterrows():
                         ketua = str(tim.get("Nama Ketua", "Tanpa Nama")).strip()
                         if pd.isna(ketua) or ketua == "nan" or not ketua:
                             continue
@@ -396,4 +423,4 @@ if file_tim and file_dosen:
     except Exception as e:
         st.error(f"Gagal membaca file Excel. Pastikan format file sesuai. Error: {str(e)}")
 else:
-    st.info("Silakan upload kedua file Excel (Data Tim & Data Dosen) di atas untuk memulai.")
+    st.info("Unggah kedua file untuk melanjutkan.")
