@@ -525,8 +525,15 @@ with tab_denah:
                                 jam_sesi = sesi
                                 if "," in sesi:
                                     jam_sesi = sesi.split(",")[-1].strip()
-                                run_dosen = p_dosen.add_run(f"{dosen} ({jam_sesi})")
-                                run_dosen.font.size = Pt(16)
+                                # Pisahkan dosen berdasarkan titik koma jika ada lebih dari 1
+                                dosen_list = [d.strip() for d in str(dosen).split(";")]
+                                for d in dosen_list:
+                                    if d:
+                                        run_d = p_dosen.add_run(d + "\n")
+                                        run_d.font.size = Pt(16)
+                                        
+                                run_jam = p_dosen.add_run(f"({jam_sesi})")
+                                run_jam.font.size = Pt(16)
                                 
                                 doc.add_paragraph() # Spacing
                                 
