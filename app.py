@@ -503,57 +503,67 @@ with tab_denah:
                                 p_ruangan.alignment = WD_ALIGN_PARAGRAPH.CENTER
                                 run_ruangan = p_ruangan.add_run(nama_ruangan)
                                 run_ruangan.bold = True
-                                run_ruangan.font.size = Pt(32)
+                                run_ruangan.font.size = Pt(80)
+                                run_ruangan.font.name = 'Times New Roman'
                                 
                                 # 2. Skema PKM
                                 p_skema = doc.add_paragraph()
                                 p_skema.alignment = WD_ALIGN_PARAGRAPH.CENTER
                                 run_skema = p_skema.add_run(skema)
                                 run_skema.bold = True
-                                run_skema.font.size = Pt(24)
+                                run_skema.font.size = Pt(60)
+                                run_skema.font.name = 'Times New Roman'
                                 
                                 # 3. Hari dan Tanggal
                                 p_hari = doc.add_paragraph()
                                 p_hari.alignment = WD_ALIGN_PARAGRAPH.CENTER
                                 run_hari = p_hari.add_run(tanggal_hari)
-                                run_hari.font.size = Pt(16)
+                                run_hari.font.size = Pt(34)
+                                run_hari.font.name = 'Times New Roman'
+                                
+                                doc.add_paragraph() # Enter setelah jadwal
                                 
                                 # 4. Dosen Pembimbing
                                 p_dosen = doc.add_paragraph()
                                 p_dosen.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                                # Coba ekstrak jam dari sesi (misal 'Jumat, 09.00-12.00' -> '09.00-12.00')
-                                jam_sesi = sesi
-                                if "," in sesi:
-                                    jam_sesi = sesi.split(",")[-1].strip()
-                                # Pisahkan dosen berdasarkan titik koma jika ada lebih dari 1
-                                dosen_list = [d.strip() for d in str(dosen).split(";")]
-                                for d in dosen_list:
-                                    if d:
-                                        run_d = p_dosen.add_run(d + "\n")
-                                        run_d.font.size = Pt(16)
-                                        
-                                run_jam = p_dosen.add_run(f"({jam_sesi})")
-                                run_jam.font.size = Pt(16)
+                                dosen_list = [d.strip() for d in str(dosen).split(";") if d.strip()]
+                                for i, d in enumerate(dosen_list):
+                                    run_d = p_dosen.add_run(d)
+                                    if i < len(dosen_list) - 1:
+                                        p_dosen.add_run("\n")
+                                    run_d.font.size = Pt(16)
+                                    run_d.font.name = 'Times New Roman'
                                 
                                 doc.add_paragraph() # Spacing
                                 
                                 # 5. Daftar Tim
                                 p_daftar = doc.add_paragraph()
+                                p_daftar.alignment = WD_ALIGN_PARAGRAPH.CENTER
                                 run_daftar = p_daftar.add_run("Daftar Tim")
                                 run_daftar.bold = True
-                                run_daftar.font.size = Pt(14)
+                                run_daftar.font.size = Pt(12)
+                                run_daftar.font.name = 'Times New Roman'
                                 
                                 # Table
-                                table = doc.add_table(rows=1, cols=2)
+                                table = doc.add_table(rows=1, cols=1)
                                 table.style = 'Table Grid'
                                 hdr_cells = table.rows[0].cells
-                                hdr_cells[0].text = 'No'
-                                hdr_cells[1].text = 'Nama Ketua'
+                                hdr_cells[0].text = ''
+                                p_hdr = hdr_cells[0].paragraphs[0]
+                                p_hdr.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                                run_hdr = p_hdr.add_run('Nama Ketua')
+                                run_hdr.bold = True
+                                run_hdr.font.size = Pt(12)
+                                run_hdr.font.name = 'Times New Roman'
                                 
-                                for i, ketua in enumerate(teams):
+                                for ketua in teams:
                                     row_cells = table.add_row().cells
-                                    row_cells[0].text = str(i+1)
-                                    row_cells[1].text = ketua
+                                    row_cells[0].text = ''
+                                    p_row = row_cells[0].paragraphs[0]
+                                    p_row.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                                    run_row = p_row.add_run(ketua)
+                                    run_row.font.size = Pt(12)
+                                    run_row.font.name = 'Times New Roman'
                                     
                                 doc.add_page_break()
                                 
